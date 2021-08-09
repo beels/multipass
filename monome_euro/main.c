@@ -46,6 +46,7 @@
 #include "ftdi.h"
 #include "twi.h"
 #include "dac.h"
+#include "cdc.h"
 #include "interrupts.h"
 #include "font.h"
 #include "screen.h"
@@ -1070,7 +1071,7 @@ void front_button_hold_callback(void* o) {
 // monome/ftdi handlers
 
 static void monome_poll_callback(void* obj) {
-    ftdi_read();
+    serial_read();
 }
 
 static void monome_refresh_callback(void* obj) {
@@ -1095,6 +1096,10 @@ static void handler_ftdi_disconnect(s32 data) {
 
     event_data[0] = 0;
     control_event(is_grid ? GRID_CONNECTED : ARC_CONNECTED, 1);
+}
+
+static void handler_serial_connect(s32 data) {
+  monome_setup_mext();
 }
 
 static void handler_monome_connect(s32 data) {
@@ -1393,7 +1398,6 @@ static void refresh_i2c(void) {
     }
 }
 
-
 // ----------------------------------------------------------------------------
 // init / main
 
@@ -1415,7 +1419,10 @@ static inline void assign_main_event_handlers(void) {
     app_event_handlers[kEventMonomePoll]       = &handler_monome_poll;
     app_event_handlers[kEventMonomeGridKey]    = &handler_monome_grid_key;
     app_event_handlers[kEventMonomeRingEnc]    = &handler_monome_ring_enc;
-    
+
+    app_event_handlers[kEventSerialConnect]	   = &handler_serial_connect ;
+    app_event_handlers[kEventSerialDisconnect] = &handler_ftdi_disconnect ;
+
     app_event_handlers[kEventMidiConnect]      = &handler_midi_connect;
     app_event_handlers[kEventMidiDisconnect]   = &handler_midi_disconnect;
     app_event_handlers[kEventMidiPacket]       = &handler_standard_midi_packet;
