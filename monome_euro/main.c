@@ -1512,7 +1512,6 @@ static void init_state(void) {
     midi_behavior.seq_stop = NULL;
     midi_behavior.seq_continue = NULL;
     midi_behavior.panic = NULL;
-    midi_behavior.aftertouch = &midi_aftertouch;
 
     // hid
 
